@@ -7,12 +7,19 @@ const Tour = require('../models/tourModel');
  * @param {Object} res
  * @returns An array consisting of all tours
  */
-exports.getAllTours = (req, res) => {
-  // res.status(200).json({
-  //   status: 'Success',
-  //   results: tours.length,
-  //   data: { tours },
-  // });
+exports.getAllTours = async (req, res) => {
+  const tours = await Tour.find();
+  try {
+    res.status(200).json({
+      status: 'Success',
+      result: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: 'Fail', message: err });
+  }
 };
 /**
  *
@@ -20,10 +27,14 @@ exports.getAllTours = (req, res) => {
  * @param {Object} res
  * @returns {Object} a single tour object
  */
-exports.getTour = (req, res) => {
-  const id = req.params.id * 1;
-  // const foundTour = tours.find((tour) => tour.id === id);
-  // res.status(200).json({ status: 'Success', data: { tour: foundTour } });
+exports.getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // Tour.findOne({_id :req.param.id})
+    res.status(200).json({ status: 'Success', data: { tour } });
+  } catch (err) {
+    res.status(404).json({ status: 'Fail', message: 'Tour with id not fond ' });
+  }
 };
 /**
  *
