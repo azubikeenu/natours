@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const { santizeQuery } = require('../utils');
 
 // Route handlers
 /**
@@ -8,8 +9,15 @@ const Tour = require('../models/tourModel');
  * @returns An array consisting of all tours
  */
 exports.getAllTours = async (req, res) => {
-  const tours = await Tour.find();
   try {
+    const query = santizeQuery(req);
+    //console.log(queryObject);
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+    const tours = await Tour.find(query);
     res.status(200).json({
       status: 'Success',
       result: tours.length,
