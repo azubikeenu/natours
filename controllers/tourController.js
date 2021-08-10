@@ -10,14 +10,31 @@ const { santizeQuery } = require('../utils');
  */
 exports.getAllTours = async (req, res) => {
   try {
-    const query = santizeQuery(req);
+    const queryObject = santizeQuery(req);
+
     //console.log(queryObject);
     // const tours = await Tour.find()
     //   .where('duration')
     //   .equals(5)
     //   .where('difficulty')
     //   .equals('easy');
-    const tours = await Tour.find(query);
+
+    let query = Tour.find(queryObject);
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+    //  Execute query
+    const tours = await query;
+
     res.status(200).json({
       status: 'Success',
       result: tours.length,
@@ -41,7 +58,9 @@ exports.getTour = async (req, res) => {
     // Tour.findOne({_id :req.param.id})
     res.status(200).json({ status: 'Success', data: { tour } });
   } catch (err) {
-    res.status(404).json({ status: 'Fail', message: 'Tour with id not fond ' });
+    res
+      .status(404)
+      .json({ status: 'Fail', message: 'Tour with id not found ' });
   }
 };
 /**
