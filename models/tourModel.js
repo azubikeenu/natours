@@ -61,6 +61,7 @@ const tourSchema = new mongoose.Schema(
     startDates: {
       type: [Date],
     },
+    secretTour: Boolean,
   },
   {
     toJSON: { virtuals: true },
@@ -68,8 +69,7 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-//Ddocument middleware , it runs before the save command or create command , but not insertMany
-
+//Ddcument middleware , it runs before the save command or create command , but not insertMany
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -84,6 +84,14 @@ tourSchema.pre('save', function (next) {
 //   console.log(doc);
 //   next();
 // });
+
+//Query Middleware
+
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
 // using virtual properties
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;

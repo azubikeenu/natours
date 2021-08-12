@@ -10,7 +10,7 @@ class QueryBuilder {
       (el) => !excludedFields.includes(el)
     );
     const queryObject = santizedFields.reduce((acc, curr) => {
-      acc[curr] = this.query[curr];
+      acc[curr] = this.queryString[curr];
       return acc;
     }, {});
     const regex = /\b(gte|gt|lte|lt|ne)\b/g;
