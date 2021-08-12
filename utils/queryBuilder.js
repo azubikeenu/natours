@@ -1,4 +1,4 @@
-export default class QueryBuilder {
+class QueryBuilder {
   constructor(query, queryString) {
     this.query = query;
     this.queryString = queryString;
@@ -48,3 +48,5 @@ export default class QueryBuilder {
     return this;
   }
 }
+
+module.exports = QueryBuilder;
