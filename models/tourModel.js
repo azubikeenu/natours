@@ -98,6 +98,13 @@ tourSchema.post(/^find/, function (doc, next) {
   next();
 });
 
+// Aggregation Middleware
+
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
+
 // using virtual properties
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
