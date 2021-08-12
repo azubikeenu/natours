@@ -1,5 +1,5 @@
 const Tour = require('../models/tourModel');
-const { santizeQuery } = require('../utils');
+const QueryBuilder = require('../utils/queryBuilder');
 
 // Route handlers
 /**
@@ -8,43 +8,15 @@ const { santizeQuery } = require('../utils');
  * @param {Object} res
  * @returns An array consisting of all tours
  */
+
 exports.getAllTours = async (req, res) => {
   try {
-    const queryObject = santizeQuery(req);
-
-    //console.log(queryObject);
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    // SORTING
-    let query = Tour.find(queryObject);
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-    // SELECTING FIELDS
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-    //PAGINATION
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 10;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-    if (req.query.page) {
-      const totalTours = await Tour.countDocuments();
-      if (skip >= totalTours) throw new Error('Page does not exist');
-    }
-    //  Execute query
-    const tours = await query;
+    const builder = new QueryBuilder(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .select()
+      .paginate();
+    const tours = await builder.query;
 
     res.status(200).json({
       status: 'Success',
@@ -57,6 +29,7 @@ exports.getAllTours = async (req, res) => {
     res.status(404).json({ status: 'Fail', message: err });
   }
 };
+
 /**
  * @description this returns the top 5 cheapest tours
  * @param {Object} req
@@ -69,6 +42,7 @@ exports.bestCheap = (req, res, next) => {
   req.query.fields = 'name,price,ratingsAvg,summary,difficulty';
   next();
 };
+
 /**
  *
  * @param {Object} req
@@ -78,7 +52,6 @@ exports.bestCheap = (req, res, next) => {
 exports.getTour = async (req, res) => {
   try {
     const tour = await Tour.findById(req.params.id);
-    // Tour.findOne({_id :req.param.id})
     res.status(200).json({ status: 'Success', data: { tour } });
   } catch (err) {
     res
@@ -86,6 +59,7 @@ exports.getTour = async (req, res) => {
       .json({ status: 'Fail', message: 'Tour with id not found ' });
   }
 };
+
 /**
  *
  * @param {Object} req
@@ -103,6 +77,7 @@ exports.createTour = async (req, res) => {
     res.status(400).json({ status: 'fail', message: 'Invalid data sent!!' });
   }
 };
+
 /**
  *
  * @param {Object} req
@@ -125,6 +100,7 @@ exports.updateTour = async (req, res) => {
     res.status(404).json({ status: 'Fail', message: err });
   }
 };
+
 /**
  *
  * @param {Object} req
