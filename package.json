@@ -15,7 +15,8 @@
     "express": "^4.17.1",
     "mongoose": "^5.13.5",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "slugify": "^1.6.0"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.2",
