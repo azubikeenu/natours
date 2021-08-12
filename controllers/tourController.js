@@ -19,6 +19,7 @@ exports.getAllTours = async (req, res) => {
     //   .where('difficulty')
     //   .equals('easy');
 
+    // SORTING
     let query = Tour.find(queryObject);
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
@@ -26,11 +27,21 @@ exports.getAllTours = async (req, res) => {
     } else {
       query = query.sort('-createdAt');
     }
+    // SELECTING FIELDS
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
       query = query.select(fields);
     } else {
       query = query.select('-__v');
+    }
+    //PAGINATION
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 10;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const totalTours = await Tour.countDocuments();
+      if (skip >= totalTours) throw new Error('Page does not exist');
     }
     //  Execute query
     const tours = await query;
@@ -45,6 +56,18 @@ exports.getAllTours = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: 'Fail', message: err });
   }
+};
+/**
+ * @description this returns the top 5 cheapest tours
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Function} next
+ */
+exports.bestCheap = (req, res, next) => {
+  req.query.limit = 5;
+  req.query.sort = '-price ratingsAvg';
+  req.query.fields = 'name,price,ratingsAvg,summary,difficulty';
+  next();
 };
 /**
  *
