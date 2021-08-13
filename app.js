@@ -7,7 +7,6 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 //MIDDLEWARES
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -15,14 +14,17 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
-app.use((req, res, next) => {
-  console.log(`The current date is ${new Date().toDateString()} ❤`);
-  next();
-});
-
 //ROUTES
 app.use('/api/v1/tours', tourRouter);
 
 app.use('/api/v1/users', userRouter);
+
+// handle page not found for all other routes
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'Fail',
+    message: `Cant find ${req.originalUrl} on this server`,
+  });
+});
 
 module.exports = app;
