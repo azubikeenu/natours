@@ -8,6 +8,11 @@ const tourSchema = new mongoose.Schema(
       type: String,
       unique: true,
       trim: true,
+      maxlength: [40, 'A tour name must have less or equal to 40 characters'],
+      minLength: [
+        10,
+        'A tour name must have greater or equal to 10 characters',
+      ],
     },
     slug: String,
     duration: {
@@ -21,6 +26,10 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'should have a difficulty'],
+      enum: {
+        values: ['easy', 'difficult', 'medium'],
+        message: 'Difficulty must be one of : easy , difficult or medium',
+      },
     },
     price: {
       required: [true, 'A tour must have a price'],
@@ -29,6 +38,8 @@ const tourSchema = new mongoose.Schema(
     ratingsAvg: {
       default: 4.5,
       type: Number,
+      min: [1, 'Rating must be above 1.0'],
+      max: [1, 'Rating must be below 5.0'],
     },
     ratingsQuantity: {
       default: 0,
@@ -36,6 +47,13 @@ const tourSchema = new mongoose.Schema(
     },
     discount: {
       type: Number,
+      validate: {
+        validator: function (val) {
+          // Not going to work on update , only on create and save
+          return val < this.price;
+        },
+        message: 'Discount price ({VALUE}) should be less than regular price ',
+      },
     },
     summary: {
       type: String,
@@ -69,7 +87,7 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-//Ddcument middleware , it runs before the save command or create command , but not insertMany
+//Ddcument middleware , it runs before the save command or create command , but not insertMany or update
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
