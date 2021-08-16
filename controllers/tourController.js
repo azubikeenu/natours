@@ -51,8 +51,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
   query = query.select('-__v');
   const tour = await query;
   if (!tour) {
-    next(new AppError('No tour found with that id', 404));
-    return;
+    return next(new AppError('No tour found with that id', 404));
   }
   res.status(200).json({ status: 'Success', data: { tour } });
 });
@@ -83,8 +82,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
     runValidators: true,
   });
   if (!tour) {
-    next(new AppError('No tour found with that id', 404));
-    return;
+    return next(new AppError('No tour found with that id', 404));
   }
   res.status(200).json({
     status: 'Success',
@@ -103,8 +101,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 exports.deleteTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findByIdAndDelete(req.params.id);
   if (!tour) {
-    next(new AppError('No tour found with that id', 404));
-    return;
+    return next(new AppError('No tour found with that id', 404));
   }
   res.status(204).json({
     status: 'Success',

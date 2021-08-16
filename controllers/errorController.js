@@ -4,16 +4,21 @@
 
 const AppError = require('../utils/appError');
 
+// this handles operational errors like invalid database id
 const handleCastError = (err) => {
   const message = `Invalid ${err.path} : ${err.value}`;
   return new AppError(message, 400);
 };
 
+//this handles operational errors for unique fields
 const handleDuplicate = (err) => {
-  const message = `Duplicate value for ${err.keyValue.name}, please use another value`;
+  const value = Object.keys(err.keyValue).join(' ');
+
+  const message = `Duplicate value for ${value}, please use another value`;
   return new AppError(message, 400);
 };
 
+// this handles moongoose validation  errors
 const handleValidationError = (err) => {
   const errors = Object.values(err.errors)
     .map((el) => el.message)
@@ -31,7 +36,7 @@ const handleValidationError = (err) => {
 //   });
 // };
 
-// this was orginally production errorResponse
+// this was orginally production error response
 const sendError = (err, res) => {
   // operational error  that can be sent to the client
   if (err.isOperational) {
@@ -48,7 +53,7 @@ const sendError = (err, res) => {
     });
   }
 };
-
+// the global error-handling middleware
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
