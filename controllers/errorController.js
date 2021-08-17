@@ -57,7 +57,7 @@ const sendError = (err, res) => {
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
-  if (process.env.NODE_ENV === 'development') console.log(err);
+  // if (process.env.NODE_ENV === 'development') console.log(err);
   let error = { ...err };
   if (err.name === 'CastError') error = handleCastError(error);
   if (err.code === 11000) error = handleDuplicate(error);
