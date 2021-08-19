@@ -12,23 +12,25 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createAndSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'Success',
+    token,
+    data: { user },
+  });
+};
+
 exports.signUp = catchAsyc(async (req, res, next) => {
-  const { name, email, password, passwordConfirm, passwordChangedAt, role } =
-    req.body;
+  const { name, email, password, passwordConfirm, role } = req.body;
   const user = await User.create({
     name,
     email,
     password,
     passwordConfirm,
-    passwordChangedAt,
     role,
   });
-  const token = signToken(user._id);
-  res.status(201).json({
-    status: 'Success',
-    token,
-    data: { user },
-  });
+  createAndSendToken(user, 201, res);
 });
 
 exports.logIn = catchAsyc(async (req, res, next) => {
@@ -45,12 +47,7 @@ exports.logIn = catchAsyc(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
-
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'Success',
-    token,
-  });
+  createAndSendToken(user, 200, res);
 });
 
 exports.protect = catchAsyc(async (req, res, next) => {
@@ -150,9 +147,24 @@ exports.resetPassword = catchAsyc(async (req, res, next) => {
   await user.save();
 
   //generate a new token
-  const newToken = signToken(user._id);
-  res.status(200).json({
-    status: 'Success',
-    token: newToken,
-  });
+  createAndSendToken(user, 200, res);
+});
+
+exports.updatePassword = catchAsyc(async (req, res, next) => {
+  //get the user from the collection
+  //console.log(req.user);
+  const user = await User.findById(req.user._id).select('+password');
+  // check if the given password  is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(
+      new AppError(`Password incorrect, Did you forget your password`, 400)
+    );
+  }
+  // if the password is correct update password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  // we use save() because mongoose validators and prehooks will not work
+  await user.save();
+  // generate a new token and log the user
+  createAndSendToken(user, 201, res);
 });
