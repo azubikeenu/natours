@@ -20,7 +20,7 @@ router.post('/signup', signUp);
 router.post('/login', logIn);
 
 router.post('/forgotPassword', forgotPassword);
-router.post('/resetPassword', resetPassword);
+router.patch('/resetPassword/:token', resetPassword);
 
 router.route('/').get(getAllUsers).post(createUser);
 

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const catchAsyc = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/email');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -96,13 +97,34 @@ exports.restrictTo =
 exports.forgotPassword = catchAsyc(async (req, res, next) => {
   // get user based on posted email
   const user = await User.findOne({ email: req.body.email });
-  if (!user) next(AppError('No user with that email address', 404));
+  if (!user) return next(AppError('No user with that email address', 404));
   // generate the random token,
   const resetToken = user.createPasswordResetToken();
-
+  // this prevents mongoose validation on save , since we are modifying the fields
   await user.save({ validateBeforeSave: false });
   //send user an email with the random token
-  res.status(200).json({ resetToken });
+  const resetUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/users/resetPassword/${resetToken}`;
+  const message = `Forgot your password , submit a patch request with your new password and password confirm to
+    ${resetUrl}.\n If you didnt forget your password , ignore this message`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: `Your password rest token , valid for only 10 mins`,
+      message,
+    });
+  } catch (err) {
+    user.passwordRestToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new AppError('There was a problem sending the email', 500));
+  }
+
+  res.status(200).json({
+    status: 'Success',
+    message: 'Token sent to email',
+  });
 });
 
 exports.resetPassword = (req, res, next) => {};
