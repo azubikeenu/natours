@@ -1,10 +1,12 @@
 const User = require(`../models/userModel`);
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const crypto = require('crypto');
 const catchAsyc = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 
+// this generates a new  JWT for the user
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -127,4 +129,30 @@ exports.forgotPassword = catchAsyc(async (req, res, next) => {
   });
 });
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsyc(async (req, res, next) => {
+  const token = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  //get the user based on the token
+  const user = await User.findOne({
+    passwordResetToken: token,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  // if the token is not expired set the new password
+  if (!user) return next(new AppError('Token is invalid or has Expired', 400));
+
+  // update the new password for the new user
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  //generate a new token
+  const newToken = signToken(user._id);
+  res.status(200).json({
+    status: 'Success',
+    token: newToken,
+  });
+});
