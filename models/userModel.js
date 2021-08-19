@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   passwordConfirm: {
+    // this field is only used for validation purposes
     type: String,
     required: [true, 'Please confirm your password'],
     validate: {
@@ -38,15 +40,18 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 // prehook onSave
+// this allows the hashing of the password when it is saved
 userSchema.pre('save', async function (next) {
   //only run when the password is modified
   if (!this.isModified('password')) return next();
   // hash the password
   this.password = await bcrypt.hash(this.password, 12);
-  //prevent the peristence of password
+  //prevent the peristence of passwordConfirm
   this.passwordConfirm = undefined;
   next();
 });
@@ -65,6 +70,17 @@ userSchema.methods.hasChangedPassword = function (JWTTimeStamp) {
     return JWTTimeStamp < changedTimeStamp;
   }
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const token = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 60 * 10 * 1000;
+
+  return token;
 };
 
 module.exports = mongoose.model('User', userSchema);
