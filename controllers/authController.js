@@ -12,19 +12,18 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const cookeOptions = {
-  expiresIn: new Date(
-    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-  ),
-  httpOnly: true,
-};
-if (process.env.NODE_ENV === 'production') cookeOptions.secure = true;
-
 const createAndSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
-  res.cookie('jwt', token, cookeOptions);
-  // prevent password from being shown
+  // set the cookie
+  res.cookie('jwt', token, {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+  });
+  // prevent password from being shown in the response object
   user.password = undefined;
   res.status(statusCode).json({
     status: 'Success',
@@ -53,13 +52,15 @@ exports.logIn = catchAsyc(async (req, res, next) => {
     const err = new AppError('Please provide email and password', 400);
     return next(err);
   }
-  // check if email and password is correct
+
+  // extract the password
   const user = await User.findOne({ email }).select('+password');
 
-  //if everything is ok send the token to the client
+  //compare the hashedpassword and supplied password
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
+  //if everything is ok send the token to the client
   createAndSendToken(user, 200, res);
 });
 
@@ -107,7 +108,7 @@ exports.restrictTo =
   };
 
 exports.forgotPassword = catchAsyc(async (req, res, next) => {
-  // get user based on posted email
+  // get user based on supplied email
   const user = await User.findOne({ email: req.body.email });
   if (!user) return next(AppError('No user with that email address', 404));
   // generate the random token,
@@ -147,7 +148,7 @@ exports.resetPassword = catchAsyc(async (req, res, next) => {
   //get the user based on the token
   const user = await User.findOne({
     passwordResetToken: token,
-    passwordResetExpires: { $gt: Date.now() },
+    passwordResetExpires: { $gt: Date.now() }, // this only returns of the reset token is still valid
   });
   // if the token is not expired set the new password
   if (!user) return next(new AppError('Token is invalid or has Expired', 400));

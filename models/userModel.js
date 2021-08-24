@@ -66,6 +66,7 @@ userSchema.pre(/^find/, function (next) {
   next();
 });
 
+// this updates the passwordChangedAtField when password is updated
 userSchema.pre('save', function (next) {
   // if the password is not modified or the document is new
   if (!this.isModified('password') || this.isNew) return next();
