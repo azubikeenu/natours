@@ -3,6 +3,9 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
@@ -30,6 +33,27 @@ app.use('/api', limiter);
 // BODY PARSER (reading data from the body into req object)
 app.use(express.json({ limit: '10kb' }));
 
+// Data Sanitization against noSQL injection
+app.use(mongoSanitize());
+
+//  Data Sanitization against XSS
+app.use(xss());
+
+//Prevent parameter pollution
+
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      ' ratingsAvg',
+      'price',
+    ],
+  })
+);
+
 // SERVING  STATIC  FILES
 app.use(express.static(`${__dirname}/public`));
 
@@ -38,6 +62,7 @@ app.use((req, res, next) => {
   console.log('This is a test middleware');
   next();
 });
+
 //ROUTES
 app.use('/api/v1/tours', tourRouter);
 
