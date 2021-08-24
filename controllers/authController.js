@@ -12,8 +12,20 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const cookeOptions = {
+  expiresIn: new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  ),
+  httpOnly: true,
+};
+if (process.env.NODE_ENV === 'production') cookeOptions.secure = true;
+
 const createAndSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+
+  res.cookie('jwt', token, cookeOptions);
+  // prevent password from being shown
+  user.password = undefined;
   res.status(statusCode).json({
     status: 'Success',
     token,
@@ -30,6 +42,7 @@ exports.signUp = catchAsyc(async (req, res, next) => {
     passwordConfirm,
     role,
   });
+
   createAndSendToken(user, 201, res);
 });
 
