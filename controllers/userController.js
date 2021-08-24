@@ -11,7 +11,7 @@ const filteredBody = (obj, ...allowedFields) => {
 };
 
 exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({ active: { $ne: false } });
   res.status(200).json({
     status: 'Success',
     result: users.length,
@@ -43,6 +43,14 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     user,
   });
 });
+
+exports.deleteMe = async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+  res.status(204).json({
+    status: 'Success',
+    data: null,
+  });
+};
 exports.getUser = (req, res) => {
   res.status(500).json({ status: 'Error', message: 'Route not defined' });
 };
