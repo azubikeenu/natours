@@ -151,6 +151,14 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+  next();
+});
 tourSchema.post(/^find/, function (doc, next) {
   this.find({ secretTour: { $ne: true } });
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
