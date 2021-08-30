@@ -47,7 +47,7 @@ exports.bestCheap = (req, res, next) => {
  * @returns {Object} a single tour object
  */
 exports.getTour = catchAsync(async (req, res, next) => {
-  let query = Tour.findById(req.params.id);
+  let query = Tour.findById(req.params.id).populate('reviews');
   query = query.select('-__v');
   const tour = await query;
   if (!tour) {
