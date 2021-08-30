@@ -1,6 +1,6 @@
 // START SERVER
 // should be top-most
-require('dotenv').config({ path: './config.env' });
+require('dotenv').config({ path: '../../config.env' });
 const fs = require('fs');
 const mongoose = require('mongoose');
 const Tour = require('../../models/tourModel');
@@ -15,9 +15,7 @@ mongoose
   })
   .then(() => console.log(`DB Connected Successfully ⭐`));
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
-);
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 
 // IMPORT DATA INTO THE DATABASE
 const importData = async () => {
