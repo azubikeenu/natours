@@ -177,7 +177,7 @@ exports.updatePassword = catchAsyc(async (req, res, next) => {
   // if the password is correct update password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
-  // we use save() because mongoose validators and prehooks will not work
+  // we use save() because mongoose validators and prehooks will not work or update
   await user.save();
   // generate a new token and log the user
   createAndSendToken(user, 201, res);
