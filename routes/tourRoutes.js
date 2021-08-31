@@ -12,7 +12,7 @@ const {
 
 const { protect, restrictTo } = require('../controllers/authController');
 
-const { createReview } = require('../controllers/reviewController');
+const reviewRouter = require('./reviewRouter');
 
 const router = express.Router();
 // router.param('id', checkID);
@@ -28,10 +28,6 @@ router
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 // nested reviews routes
-//router.route('/:tourId/reviews').get(getAllReviews);
-
-router
-  .route('/:tourId/reviews')
-  .post(protect, restrictTo('user'), createReview);
+router.use('/:tourId/reviews', reviewRouter);
 
 module.exports = router;
