@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const QueryBuilder = require('../utils/queryBuilder');
 const catchAsync = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 // Route handlers
 /**
@@ -92,22 +93,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
   });
 });
 
-/**
- *
- * @param {Object} req
- * @param {Object} res
- * @returns null
- */
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) {
-    return next(new AppError('No tour found with that id', 404));
-  }
-  res.status(204).json({
-    status: 'Success',
-    data: null,
-  });
-});
+exports.deleteTour = factory.deleteOne(Tour, 'No tour found with that id');
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stat = await Tour.aggregate([

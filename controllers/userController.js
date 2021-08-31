@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 const filteredBody = (obj, ...allowedFields) => {
   const filteredObject = {};
@@ -60,6 +61,4 @@ exports.createUser = (req, res) => {
 exports.updateUser = (req, res) => {
   res.status(500).json({ status: 'Error', message: 'Route not defined' });
 };
-exports.deleteUser = (req, res) => {
-  res.status(500).json({ status: 'Error', message: 'Route not defined' });
-};
+exports.deleteUser = factory.deleteOne(User, 'No user found with that id');

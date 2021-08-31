@@ -1,5 +1,6 @@
 const catchAsyc = require('../utils/catchAsyc');
 const Review = require('../models/reviewModel');
+const factory = require('./handlerFactory');
 
 exports.getAllReviews = catchAsyc(async (req, res, next) => {
   const filter = req.params.tourId ? { tour: req.params.tourId } : {};
@@ -24,3 +25,5 @@ exports.createReview = catchAsyc(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteReview = factory.deleteOne(Review, 'No review with that id');
