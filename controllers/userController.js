@@ -11,23 +11,12 @@ const filteredBody = (obj, ...allowedFields) => {
   return filteredObject;
 };
 
-exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find({ active: { $ne: false } });
-  res.status(200).json({
-    status: 'Success',
-    result: users.length,
-    data: {
-      users,
-    },
-  });
-});
-
 exports.updateMe = catchAsync(async (req, res, next) => {
   // create an error if the user tries to update the password
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
-        `This route is not for password updates,Please  user /updatePassword route`,
+        `This route is not for password updates,Please use /updatePassword route`,
         404
       )
     );
@@ -52,13 +41,18 @@ exports.deleteMe = async (req, res, next) => {
     data: null,
   });
 };
-exports.getUser = (req, res) => {
-  res.status(500).json({ status: 'Error', message: 'Route not defined' });
-};
+
 exports.createUser = (req, res) => {
-  res.status(500).json({ status: 'Error', message: 'Route not defined' });
+  res.status(500).json({
+    status: 'Error',
+    message: 'Route not defined :( please use signup',
+  });
 };
-exports.updateUser = (req, res) => {
-  res.status(500).json({ status: 'Error', message: 'Route not defined' });
-};
+
+exports.getAllUsers = factory.getAll(User);
+
+exports.getUser = factory.getOne(User);
+// DO NOT CHANGE PASSWORDS
+exports.updateUser = factory.updateOne(User, 'No user found with that id');
+
 exports.deleteUser = factory.deleteOne(User, 'No user found with that id');

@@ -1,32 +1,9 @@
 const Tour = require('../models/tourModel');
-const QueryBuilder = require('../utils/queryBuilder');
 const catchAsync = require('../utils/catchAsyc');
-const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 
 // Route handlers
-/**
- *
- * @param {Object} req
- * @param {Object} res
- * @returns An array consisting of all tours
- */
-
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const builder = new QueryBuilder(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .select()
-    .paginate();
-  const tours = await builder.query;
-  res.status(200).json({
-    status: 'Success',
-    result: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
+exports.getAllTours = factory.getAll(Tour);
 
 /**
  * @description this returns the top 5 cheapest tours
@@ -41,58 +18,9 @@ exports.bestCheap = (req, res, next) => {
   next();
 };
 
-/*
- *
- * @param {Object} req
- * @param {Object} res
- * @returns {Object} a single tour object
- */
-exports.getTour = catchAsync(async (req, res, next) => {
-  let query = Tour.findById(req.params.id).populate('reviews');
-  query = query.select('-__v');
-  const tour = await query;
-  if (!tour) {
-    return next(new AppError('No tour found with that id', 404));
-  }
-  res.status(200).json({ status: 'Success', data: { tour } });
-});
-
-/**
- *
- * @param {Object} req
- * @param {Object} res
- * @returns void
- */
-exports.createTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.create(req.body);
-  res.status(200).json({
-    status: 'success',
-    data: { tour },
-  });
-});
-
-/**
- *
- * @param {Object} req
- * @param {Object} res
- * @returns{Object} updated tour
- */
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!tour) {
-    return next(new AppError('No tour found with that id', 404));
-  }
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      tour: tour,
-    },
-  });
-});
-
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+exports.createTour = factory.createOne(Tour);
+exports.updateTour = factory.updateOne(Tour, 'No tour found with that id');
 exports.deleteTour = factory.deleteOne(Tour, 'No tour found with that id');
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
