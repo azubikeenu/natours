@@ -122,6 +122,10 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+//setting  indexes
+tourSchema.index({ price: 1, ratingsAvg: 1 });
+tourSchema.index({ slug: 1 });
+
 //Ddcument middleware , it runs before the save command or create command , but not insertMany or update
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });

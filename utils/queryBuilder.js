@@ -13,8 +13,6 @@ class QueryBuilder {
       acc[curr] = this.queryString[curr];
       return acc;
     }, {});
-    const allowedFields = ['gte', 'gt', 'lte', 'lt', 'ne'];
-    console.log(this.queryString);
     const regex = /\b(gte|gt|lte|lt|ne)\b/g;
     let queryStr = JSON.stringify(queryObject);
     queryStr = JSON.parse(queryStr.replace(regex, (match) => `$${match}`));

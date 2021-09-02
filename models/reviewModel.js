@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const AppError = require('../utils/appError');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -47,6 +49,53 @@ reviewSchema.pre(/^find/, function (next) {
   });
 
   next();
+});
+
+// creating static methods
+reviewSchema.statics.calculateAverages = async function (tourId) {
+  // returns an array
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRatings: { $sum: 1 },
+        averageRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+  // find the currentTour and Update
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsAvg: stats[0].averageRating,
+      ratingsQuantity: stats[0].nRatings,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsAvg: 4.5,
+      ratingsQuantity: 0,
+    });
+  }
+};
+
+reviewSchema.post('save', function () {
+  this.constructor.calculateAverages(this.tour);
+});
+
+// update number of ratings and average ratings on review update
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  // get the doc before the query executes
+  this.r = await this.findOne();
+  next();
+});
+reviewSchema.post(/^findOneAnd/, async function (doc, next) {
+  //this.findOne(); doesnt work here because data has been updated
+  if (!this.r) {
+    return next(new AppError('The document is not found in the db', 404));
+  }
+  await this.r.constructor.calculateAverages(this.r.tour);
 });
 
 module.exports = mongoose.model('Review', reviewSchema);

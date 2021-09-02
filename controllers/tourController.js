@@ -5,12 +5,6 @@ const factory = require('./handlerFactory');
 // Route handlers
 exports.getAllTours = factory.getAll(Tour);
 
-/**
- * @description this returns the top 5 cheapest tours
- * @param {Object} req
- * @param {Object} res
- * @param {Function} next
- */
 exports.bestCheap = (req, res, next) => {
   req.query.limit = 5;
   req.query.sort = '-price ratingsAvg';
