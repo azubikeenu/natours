@@ -6,7 +6,11 @@ const AppError = require('../utils/appError');
 
 // this handles operational errors like invalid database id
 const handleCastError = (err) => {
-  const message = `Invalid ${err.path} : ${err.value}`;
+  const value =
+    err.value instanceof Object
+      ? `Invalid parameter ${Object.keys(err.value)[0]}`
+      : err.value;
+  const message = `Invalid ${err.path} : ${value}`;
   return new AppError(message, 400);
 };
 
