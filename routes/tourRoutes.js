@@ -18,13 +18,18 @@ const router = express.Router();
 // router.param('id', checkID);
 router.route('/tour-stat').get(getTourStats);
 router.route('/best-cheap').get(bestCheap, getAllTours);
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
-router.route('/').get(protect, getAllTours).post(createTour);
+router
+  .route('/monthly-plan/:year')
+  .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
+router
+  .route('/')
+  .get(getAllTours)
+  .post(protect, restrictTo('admin', 'lead-guide'), createTour);
 
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 // nested reviews routes

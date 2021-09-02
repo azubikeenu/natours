@@ -51,6 +51,7 @@ app.use(
       'difficulty',
       ' ratingsAvg',
       'price',
+      'role',
     ],
   })
 );

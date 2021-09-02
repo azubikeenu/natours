@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 // prehook onSave
 // this allows the hashing of the password when it is saved
 userSchema.pre('save', async function (next) {
@@ -58,11 +63,6 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   //prevent the peristence of passwordConfirm
   this.passwordConfirm = undefined;
-  next();
-});
-
-userSchema.pre(/^find/, function (next) {
-  this.find({ active: { $ne: false } });
   next();
 });
 
