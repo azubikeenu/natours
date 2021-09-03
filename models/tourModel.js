@@ -174,10 +174,10 @@ tourSchema.post(/^find/, function (doc, next) {
 
 // Aggregation Middleware
 
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  next();
-});
+// tourSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   next();
+// });
 
 // using virtual properties
 tourSchema.virtual('durationWeeks').get(function () {
