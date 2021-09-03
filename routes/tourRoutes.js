@@ -8,6 +8,7 @@ const {
   bestCheap,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
 } = require('../controllers/tourController');
 
 const { protect, restrictTo } = require('../controllers/authController');
@@ -34,5 +35,9 @@ router
 
 // nested reviews routes
 router.use('/:tourId/reviews', reviewRouter);
+
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
 
 module.exports = router;

@@ -44,6 +44,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       min: [1, 'Rating must be above 1.0'],
       max: [5, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       default: 0,
@@ -125,6 +126,7 @@ const tourSchema = new mongoose.Schema(
 //setting  indexes
 tourSchema.index({ price: 1, ratingsAvg: 1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 //Ddcument middleware , it runs before the save command or create command , but not insertMany or update
 tourSchema.pre('save', function (next) {
