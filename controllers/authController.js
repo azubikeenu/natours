@@ -128,6 +128,7 @@ exports.forgotPassword = catchAsyc(async (req, res, next) => {
       message,
     });
   } catch (err) {
+    // rollnack if an error occurs
     user.passwordRestToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });

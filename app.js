@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -14,6 +15,13 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 //MIDDLEWARES
+//set template engine at the beginning of the middleware chain
+app.set('view engine', 'pug');
+//select path directory
+app.set('views', path.join(__dirname, 'views'));
+
+// SERVING  STATIC  FILES
+app.use(express.static(path.join(__dirname, 'public')));
 
 //SET SECURITY FOR HTTP HEADERS
 app.use(helmet());
@@ -56,13 +64,14 @@ app.use(
   })
 );
 
-// SERVING  STATIC  FILES
-app.use(express.static(`${__dirname}/public`));
-
 // TEST MIDDLEWARE
 app.use((req, res, next) => {
   console.log('This is a test middleware');
   next();
+});
+
+app.get('/', (req, res) => {
+  res.status(200).render('base');
 });
 
 //ROUTES
