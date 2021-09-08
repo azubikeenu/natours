@@ -1,10 +1,6 @@
 extends base
-mixin overviewBox(label , text , iconName)
-    .overview-box__detail
-        svg.overview-box__icon
-             use(xlink:href=`/img/icons.svg#icon-${iconName}`)
-        span.overview-box__label= label
-        span.overview-box__text= text
+include _review_card
+
 block content
     section.section-header
         .header__hero
@@ -54,7 +50,8 @@ block content
                 img.picture-box__img(src=`/img/tours/${image}`, alt=`${tour.name} ${index+1}` ,class =`picture-box__img--${index+1}`)
 
     section.section-map
-    #map
+        -const locations = JSON.stringify(tour.locations)
+        #map(data-locations=locations)
 
     section.section-reviews
         .reviews
@@ -80,3 +77,7 @@ block content
                 h2.heading-secondary What are you waiting for?
                 p.cta__text=`${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
                 button.btn.btn--green.span-all-rows Book tour now!
+
+
+block append content
+    <script src='/js/mapbox.js'></script>
