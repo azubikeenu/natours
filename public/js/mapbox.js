@@ -6,8 +6,6 @@ mapboxgl.accessToken =
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/richebony/cktc55cyc01ex17mitqz94ise',
-//   center: [-118.13351341244383, 33.905051987179775],
-//   zoom: 10,
 });
 
 const bounds = new mapboxgl.LngLatBounds();

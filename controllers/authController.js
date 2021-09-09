@@ -64,6 +64,7 @@ exports.logIn = catchAsyc(async (req, res, next) => {
   createAndSendToken(user, 200, res);
 });
 
+// Authentication Logic
 exports.protect = catchAsyc(async (req, res, next) => {
   // get the token and check if it exists
   let token;
@@ -72,6 +73,8 @@ exports.protect = catchAsyc(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
   if (!token) {
     return next(new AppError('Please login to continue', 401));
@@ -97,6 +100,29 @@ exports.protect = catchAsyc(async (req, res, next) => {
   next();
 });
 
+// only for public pages
+exports.isLoggedIn = catchAsyc(async (req, res, next) => {
+  // get the token and check if it exists
+  let token;
+  if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+    const decodedToken = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    );
+    // if the verification is successful check if user still exists
+    const returnedUser = await User.findById(decodedToken.id);
+    if (!returnedUser) return next();
+    // check if  user changed password after the token was issued
+    if (returnedUser.hasChangedPassword(decodedToken.iat)) return next();
+    // There is a user logged in ;
+    res.locals.user = returnedUser;
+  }
+  // verify the token
+  next();
+});
+
+// Authorization logic
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {

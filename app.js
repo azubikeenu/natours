@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRouter');
@@ -35,9 +36,10 @@ app.use(
       'script-src': [
         "'self'",
         'https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js',
       ],
       'worker-src': ["'self'", 'blob:'],
-      'connect-src': ['https://api.mapbox.com/'],
+      'connect-src': ["'self'", 'https://api.mapbox.com/'],
     },
   })
 );
@@ -57,6 +59,8 @@ app.use('/api', limiter);
 
 // BODY PARSER (reading data from the body into req object)
 app.use(express.json({ limit: '10kb' }));
+// USING THE COOKIE-PARSER
+app.use(cookieParser());
 
 // Data Sanitization against noSQL injection
 app.use(mongoSanitize());
