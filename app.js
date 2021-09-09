@@ -17,6 +17,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
+
 //MIDDLEWARES
 //set template engine at the beginning of the middleware chain
 app.set('view engine', 'pug');
@@ -27,7 +28,19 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //SET SECURITY FOR HTTP HEADERS
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      'script-src': [
+        "'self'",
+        'https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js',
+      ],
+      'worker-src': ["'self'", 'blob:'],
+      'connect-src': ['https://api.mapbox.com/'],
+    },
+  })
+);
 
 // DEV LOGGING
 if (process.env.NODE_ENV === 'development') {
