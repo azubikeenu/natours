@@ -49,21 +49,27 @@ const handleJWTExpiredError = () =>
 // };
 
 // this was orginally production error response
-const sendError = (err, res) => {
+const sendError = (err, res, req) => {
   // operational error  that can be sent to the client
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
+  if (req.originalUrl.startsWith('/api')) {
+    //API
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    }
     console.error('ERROR 🔥', err);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'Fail',
       message: 'Something went wrong',
       error: err,
     });
   }
+  //WEBSITE
+  return res
+    .status(err.statusCode)
+    .render('error', { title: 'Something went wrong ', msg: err.message });
 };
 // the global error-handling middleware
 module.exports = (err, req, res, next) => {
@@ -76,5 +82,5 @@ module.exports = (err, req, res, next) => {
   if (err.name === 'ValidationError') error = handleValidationError(error);
   if (err.name === 'JsonWebTokenError') error = handleJWTError();
   if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
-  sendError(error, res);
+  sendError(error, res, req);
 };

@@ -15,5 +15,4 @@ router.get('/', getOverview);
 
 router.get('/tour/:slug', getTour);
 router.route('/login').get(getLoginForm);
-
 module.exports = router;

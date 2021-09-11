@@ -101,26 +101,29 @@ exports.protect = catchAsyc(async (req, res, next) => {
 });
 
 // only for public pages
-exports.isLoggedIn = catchAsyc(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   // get the token and check if it exists
   let token;
+  let decodedToken;
   if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-    const decodedToken = await promisify(jwt.verify)(
-      token,
-      process.env.JWT_SECRET
-    );
-    // if the verification is successful check if user still exists
-    const returnedUser = await User.findById(decodedToken.id);
-    if (!returnedUser) return next();
-    // check if  user changed password after the token was issued
-    if (returnedUser.hasChangedPassword(decodedToken.iat)) return next();
-    // There is a user logged in ;
-    res.locals.user = returnedUser;
+    try {
+      token = req.cookies.jwt;
+      decodedToken = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+      // if the verification is successful check if user still exists
+      const returnedUser = await User.findById(decodedToken.id);
+      if (!returnedUser) return next();
+      // check if  user changed password after the token was issued
+      if (returnedUser.hasChangedPassword(decodedToken.iat)) return next();
+      // There is a user logged in ;
+      res.locals.user = returnedUser;
+      return next();
+    } catch (err) {
+      return next();
+    }
   }
   // verify the token
   next();
-});
+};
 
 // Authorization logic
 exports.restrictTo =
@@ -209,3 +212,11 @@ exports.updatePassword = catchAsyc(async (req, res, next) => {
   // generate a new token and log the user
   createAndSendToken(user, 201, res);
 });
+
+exports.logout = (req, res, next) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 90000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'Success' });
+};
