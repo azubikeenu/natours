@@ -61,6 +61,8 @@ app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' }));
 // USING THE COOKIE-PARSER
 app.use(cookieParser());
+// body parser for forms
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Data Sanitization against noSQL injection
 app.use(mongoSanitize());

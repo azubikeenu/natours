@@ -97,6 +97,7 @@ exports.protect = catchAsyc(async (req, res, next) => {
     );
   // grant access to protected route
   req.user = returnedUser;
+  res.locals.user = returnedUser;
   next();
 });
 
@@ -196,7 +197,6 @@ exports.resetPassword = catchAsyc(async (req, res, next) => {
 
 exports.updatePassword = catchAsyc(async (req, res, next) => {
   //get the user from the collection
-  //console.log(req.user);
   const user = await User.findById(req.user._id).select('+password');
   // check if the given password  is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
@@ -215,7 +215,7 @@ exports.updatePassword = catchAsyc(async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 90000),
+    expires: new Date(Date.now() + 10000),
     httpOnly: true,
   });
   res.status(200).json({ status: 'Success' });
