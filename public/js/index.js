@@ -13,6 +13,11 @@ const logOutButton = document.querySelector('.nav__el--logout');
 const userForm = document.querySelector('.form-user-data');
 const userName = document.querySelector('.user_name');
 const userEmail= document.querySelector('.user_email');
+const userPassword =  document.querySelector('.user_password');
+const passwordCurrent = document.querySelector('#password-current');
+const passwordConfirm = document.querySelector('#password-confirm');
+
+const userPasswordForm  = document.querySelector('.form-user-settings');
 
 if (mapbox) {
   let { locations } = document.querySelector('#map').dataset;
@@ -34,6 +39,15 @@ if (logOutButton) {
 if (userForm) {
   userForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    updateProfile(userName.value, userEmail.value);
+    updateProfile('data' , {email : userEmail.value , name : userName.value});
+  });
+}
+if (userPasswordForm) {
+  userPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await updateProfile('password' , {password : userPassword.value , passwordConfirm : passwordConfirm.value , passwordCurrent : passwordCurrent.value});
+    userPassword.value='';
+    passwordConfirm.value ='';
+    passwordCurrent.value='';
   });
 }
