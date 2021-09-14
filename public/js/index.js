@@ -39,7 +39,12 @@ if (logOutButton) {
 if (userForm) {
   userForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    updateProfile('data' , {email : userEmail.value , name : userName.value});
+    const formData = new FormData();
+    formData.append('email' , userEmail.value);
+    formData.append('name' , userName.value);
+    formData.append('photo' , document.getElementById('photo').files[0])
+    console.log(formData);
+    updateProfile('data' , formData);
   });
 }
 if (userPasswordForm) {
@@ -49,5 +54,6 @@ if (userPasswordForm) {
     userPassword.value='';
     passwordConfirm.value ='';
     passwordCurrent.value='';
+
   });
 }
