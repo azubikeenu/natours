@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const catchAsyc = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 
 // this generates a new  JWT for the user
 const signToken = (id) =>
@@ -41,7 +41,8 @@ exports.signUp = catchAsyc(async (req, res, next) => {
     passwordConfirm,
     role,
   });
-
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new Email(user, url).sendWelcome();
   createAndSendToken(user, 201, res);
 });
 
@@ -145,24 +146,20 @@ exports.forgotPassword = catchAsyc(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   // this prevents mongoose validation on save , since we are modifying the fields
   await user.save({ validateBeforeSave: false });
+
   //send user an email with the random token
-  const resetUrl = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/users/resetPassword/${resetToken}`;
-  const message = `Forgot your password , submit a patch request with your new password and password confirm to
-    ${resetUrl}.\n If you didnt forget your password , ignore this message`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: `Your password rest token , valid for only 10 mins`,
-      message,
-    });
+    const resetUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/resetPassword/${resetToken}`;
+    await new Email(user, resetUrl).sendPasswordReset();
   } catch (err) {
+    console.log(err);
     // rollnack if an error occurs
     user.passwordRestToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    return next(new AppError('There was a problem sending the email', 500));
+    return next(new AppError('There was a problem in sending the email', 500));
   }
 
   res.status(200).json({

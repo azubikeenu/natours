@@ -39,7 +39,7 @@ router.patch('/updatePassword', updatePassword);
 router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 //get user profile
-router.get('/me', protect, getMe, getUser);
+router.get('/me', protect, getMe);
 
 // restrict remaining routes to admin
 router.use(restrictTo('admin'));
