@@ -2,6 +2,7 @@ extends base
 include _review_card
 block append head
     script(src='https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js' )
+    script(src='https://js.stripe.com/v3/')
     link(href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet')
 
 block content
@@ -36,7 +37,7 @@ block content
                         .overview-box__detail
                             img.overview-box__img(src=`/img/users/${guide.photo}`, alt='Lead guide')
                             - if(guide.role==='lead-guide')
-                                 span.overview-box__label Lead Guide
+                                span.overview-box__label Lead Guide
                             - if(guide.role==='guide')
                                 span.overview-box__label Tour Guide
                             span.overview-box__text=guide.name
@@ -79,4 +80,8 @@ block content
             .cta__content
                 h2.heading-secondary What are you waiting for?
                 p.cta__text=`${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
-                button.btn.btn--green.span-all-rows Book tour now!
+
+                if user
+                    button.btn.btn--green.span-all-rows#book-tour(data-tourid=tour.id) Book tour now!
+                else
+                    a(href='/login').btn.btn--green.span-all-rows Log in to book tour!

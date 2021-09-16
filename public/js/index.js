@@ -3,7 +3,7 @@ import '@babel/polyfill';
 import { login, logout } from './login';
 import { displayMap } from './mapbox';
 import { updateProfile } from './updateSettings';
-
+import {bookTour} from './stripe'
 //DOM ELEMENTS
 const mapbox = document.getElementById('map');
 const email = document.getElementById('email');
@@ -18,6 +18,8 @@ const passwordCurrent = document.querySelector('#password-current');
 const passwordConfirm = document.querySelector('#password-confirm');
 
 const userPasswordForm  = document.querySelector('.form-user-settings');
+
+const bookButton = document.getElementById('book-tour');
 
 if (mapbox) {
   let { locations } = document.querySelector('#map').dataset;
@@ -56,4 +58,13 @@ if (userPasswordForm) {
     passwordCurrent.value='';
 
   });
+}
+
+
+if(bookButton){
+  bookButton.addEventListener('click', async e =>{
+    e.target.textContent = `Processing....`;
+    let {tourid} = e.target.dataset;
+     await bookTour(tourid)
+  })
 }

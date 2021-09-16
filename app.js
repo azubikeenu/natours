@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRouter');
+const bookingRouter = require('./routes/bookingRoutes');
 
 const viewRouter = require('./routes/viewRoutes');
 
@@ -38,9 +39,15 @@ app.use(
         "'self'",
         'https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js',
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js',
+        'https://js.stripe.com/',
       ],
       'worker-src': ["'self'", 'blob:'],
-      'connect-src': ["'self'", 'https://api.mapbox.com/'],
+      'connect-src': [
+        "'self'",
+        'https://api.mapbox.com/',
+        'https://events.mapbox.com/',
+      ],
+      'frame-src': ["'self'", 'https://js.stripe.com/'],
     },
   })
 );
@@ -96,11 +103,14 @@ app.use((req, res, next) => {
 //ROUTES
 
 app.use('/', viewRouter);
+
 app.use('/api/v1/tours', tourRouter);
 
 app.use('/api/v1/users', userRouter);
 
 app.use('/api/v1/reviews', reviewRouter);
+
+app.use('/api/v1/bookings', bookingRouter);
 
 // handle page not found for all other routes
 app.all('*', (req, res, next) => {
