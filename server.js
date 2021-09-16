@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 // handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.log(err.name, err.message);
+  console.log(err);
   console.log('Uncaught Exception ... Shutting down!!');
   process.exit(1);
 });

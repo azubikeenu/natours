@@ -9065,28 +9065,26 @@ var bookTour = /*#__PURE__*/function () {
 
           case 3:
             session = _context.sent;
-            // Use our stripe object to create the checkout form plus charge the credit card
-            console.log(session);
-            _context.next = 7;
+            _context.next = 6;
             return stripe.redirectToCheckout({
               sessionId: session.data.session.id
             });
 
-          case 7:
-            _context.next = 12;
+          case 6:
+            _context.next = 11;
             break;
 
-          case 9:
-            _context.prev = 9;
+          case 8:
+            _context.prev = 8;
             _context.t0 = _context["catch"](0);
             (0, _alert.showAlert)("Error", _context.t0);
 
-          case 12:
+          case 11:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[0, 9]]);
+    }, _callee, null, [[0, 8]]);
   }));
 
   return function bookTour(_x) {

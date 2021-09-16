@@ -131,10 +131,13 @@ exports.isLoggedIn = async (req, res, next) => {
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
-    if (!roles.includes(req.user.role))
+    if (!roles.includes(req.user.role)) {
+      console.log(req.user.role);
       return next(
         new AppError('You do not have permission to perform this action', 403)
       );
+    }
+
     next();
   };
 
@@ -154,8 +157,7 @@ exports.forgotPassword = catchAsyc(async (req, res, next) => {
     )}/api/v1/users/resetPassword/${resetToken}`;
     await new Email(user, resetUrl).sendPasswordReset();
   } catch (err) {
-    console.log(err);
-    // rollnack if an error occurs
+    // rollback if an error occurs
     user.passwordRestToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });

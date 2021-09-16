@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsyc');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
+const Bookings = require('../models/bookingsModel');
 
 exports.getOverview = catchAsync(async (req, res, next) => {
   // get tour from database
@@ -46,4 +47,12 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
   );
 
   res.status(200).render('account', { title: 'User Accounts Page', user });
+});
+
+exports.getMyTours = catchAsync(async (req, res, next) => {
+  // get tours using the user id
+  const bookings = await Bookings.find({ user: req.user.id });
+  const tours = bookings.map((booking) => booking.tour);
+  console.log(tours);
+  res.status(200).render('overview', { title: 'My Tours', tours });
 });

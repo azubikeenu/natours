@@ -24,6 +24,8 @@ const {
   logout,
 } = require('../controllers/authController');
 
+const bookingsRouter = require('./bookingRoutes');
+
 const router = express.Router();
 
 router.post('/signup', signUp);
@@ -34,6 +36,8 @@ router.patch('/resetPassword/:token', resetPassword);
 
 //protect remaining routes
 router.use(protect);
+
+router.use('/:userId/bookings', bookingsRouter);
 
 router.patch('/updatePassword', updatePassword);
 router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);

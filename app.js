@@ -94,12 +94,6 @@ app.use(
   })
 );
 
-// TEST MIDDLEWARE
-app.use((req, res, next) => {
-  console.log('This is a test middleware');
-  next();
-});
-
 //ROUTES
 
 app.use('/', viewRouter);

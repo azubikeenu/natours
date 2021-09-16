@@ -17,6 +17,7 @@ const {
 const { protect, restrictTo } = require('../controllers/authController');
 
 const reviewRouter = require('./reviewRouter');
+const bookingsRouter = require('./bookingRoutes');
 
 const router = express.Router();
 // router.param('id', checkID);
@@ -44,7 +45,7 @@ router
 
 // nested reviews routes
 router.use('/:tourId/reviews', reviewRouter);
-
+router.use('/:tourId/bookings', bookingsRouter);
 router
   .route('/tours-within/:distance/center/:latlng/unit/:unit')
   .get(getToursWithin);
