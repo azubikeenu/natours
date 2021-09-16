@@ -168,7 +168,7 @@ tourSchema.pre(/^find/, function (next) {
 });
 tourSchema.post(/^find/, function (doc, next) {
   this.find({ secretTour: { $ne: true } });
-  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  //console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
 });
 
