@@ -57,14 +57,17 @@ exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     // to allow for nested route on reviews(hack)
     let filter = req.params.tourId ? { tour: req.params.tourId } : {};
+
     filter = req.params.userId
       ? { user: req.params.userId, ...filter }
       : filter;
+    //console.log(req.query);
     const builder = new QueryBuilder(Model.find(filter), req.query)
       .filter()
       .sort()
       .select()
       .paginate();
+
     const data = await builder.query;
     res.status(200).json({
       status: 'Success',

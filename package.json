@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-mongo-sanitize": "^2.1.0",
@@ -35,7 +36,7 @@
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.12",
     "pug": "^3.0.2",
-    "sharp": "^0.23.2",
+    "sharp": "^0.29.1",
     "slugify": "^1.6.0",
     "stripe": "^8.175.0",
     "validator": "^13.6.0",
@@ -54,7 +55,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.1.2",
-    "parcel-bundler": "^1.12.5",
+    "parcel-bundler": "^1.9.4",
     "prettier": "^2.1.1"
   },
   "engines": {

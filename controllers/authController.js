@@ -14,7 +14,6 @@ const signToken = (id) =>
 
 const createAndSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
-
   // set the cookie
   res.cookie('jwt', token, {
     expires: new Date(
